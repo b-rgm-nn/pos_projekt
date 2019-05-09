@@ -6,15 +6,25 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class CSV_Parser {
     private File file = new File("C:\\Users\\Matthias\\OneDrive - HTBLA Kaindorf\\Schule\\3CHIF\\POS\\pos_projekt\\sandp500\\all_stocks_5yr.csv");
+    private File companies = new File("C:\\Users\\Matthias\\OneDrive - HTBLA Kaindorf\\Schule\\3CHIF\\POS\\pos_projekt\\sandp500\\companynames.csv");
     
-    private void parse() throws SQLException {
+    private void parseStocks() throws SQLException {
         Database database = Database.getInstance();
-        createTables();
+
+        String createSQL = "CREATE TABLE IF NOT EXISTS data ("
+                + "date DATE,"
+                + "open REAL,"
+                + "high REAL,"
+                + "low REAL,"
+                + "close REAL,"
+                + "volume BIGINT,"
+                + "symbol VARCHAR(5)"
+                + ");";
+        Database.getInstance().update(createSQL);
+
         database.update("DELETE FROM data WHERE 1=1");
         
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -44,23 +54,43 @@ public class CSV_Parser {
         }
     }
     
-    private void createTables() throws SQLException {
-        String query = "CREATE TABLE IF NOT EXISTS data ("
-                + "date DATE,"
-                + "open REAL,"
-                + "high REAL,"
-                + "low REAL,"
-                + "close REAL,"
-                + "volume BIGINT,"
-                + "name VARCHAR(5)"
+    private void parseCompanyNames() throws SQLException {
+        Database database = Database.getInstance();
+        String createSQL = "CREATE TABLE IF NOT EXISTS companies ("
+                + "symbol VARCHAR(5),"
+                + "name VARCHAR(255),"
+                + "sector VARCHAR(255)"
                 + ");";
-        Database.getInstance().update(query);
+        
+        database.update(createSQL);
+        database.update("DELETE FROM companies WHERE 1=1");
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(companies))) {
+            String line = br.readLine();
+            while((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                String symbol = data[0].replace("'", "");
+                String name = data[1].replace("'", "");
+                String sector = data[2].replace("'", "");
+                String sql = String.format(
+                        "INSERT INTO companies (symbol, name, sector) "
+                                + "VALUES ('%s', '%s', '%s');",
+                                           symbol, name, sector);
+                database.update(sql);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         CSV_Parser parser = new CSV_Parser();
+        parser.parseCompanyNames();
+        if(true) {
+            throw new Exception("Data has already been parsed");
+        }
         try {
-            parser.parse();
+            parser.parseStocks();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
