@@ -7,12 +7,14 @@ import Exceptions.UnknownQueryException;
 import com.ibm.watson.assistant.v1.model.MessageResponse;
 import com.ibm.watson.assistant.v1.model.RuntimeEntity;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 
 
 public class Query {
+    protected static DateTimeFormatter dtf = DateTimeFormatter.ISO_DATE;
     protected MessageResponse response;
-    private LocalDate startDate, endDate;
+    protected LocalDate startDate, endDate;
 
     public Query(MessageResponse messageResponse) throws UnknownQueryException {
         this.response = messageResponse;
@@ -35,5 +37,13 @@ public class Query {
         
         startDate = dates.get(0);
         endDate = dates.get(1);
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
     }
 }

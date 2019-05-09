@@ -6,7 +6,7 @@ package Enum;
  * @author Matthias
  */
 public enum Entity {
-    date("sys-date"), time("sys-time"), company("sys-name");
+    date("sys-date"), time("sys-time"), company("company");
 
     private String name;
 

@@ -2,9 +2,15 @@ package GUI;
 
 
 import BL.WatsonAssistant;
+import Exceptions.NoDataFoundException;
 import Exceptions.UnknownQueryException;
 import Query.Query;
 import Query.SingleValueQuery;
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 
@@ -28,7 +34,7 @@ public class GUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        tfQuery.setText("What was the maxmimum value of Apple in 2015");
+        tfQuery.setText("What was the maxmimum value of AAPL in 2015");
         tfQuery.setToolTipText("query");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -75,7 +81,18 @@ public class GUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     private void displayQuery(SingleValueQuery query) {
-        
+        try {
+            List<Double> result = query.queryValues();
+            System.out.printf("open: %.2f\n", result.get(0));
+            System.out.printf("high: %.2f\n", result.get(1));
+            System.out.printf("low: %.2f\n", result.get(2));
+            System.out.printf("close: %.2f\n", result.get(3));
+        } catch (NoDataFoundException ex) {
+            System.out.printf("No Entry found for company %s between %s and %s",
+                    query.getCompany(), query.getStartDate().format(DateTimeFormatter.ISO_DATE), query.getEndDate().format(DateTimeFormatter.ISO_DATE));
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
     
     private void btQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btQueryActionPerformed

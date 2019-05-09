@@ -3,6 +3,7 @@ package BL;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -34,6 +35,10 @@ public class Database {
             instance = new Database();
         }
         return instance;
+    }
+    
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        return conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
     }
     
     public ResultSet query(String sql) throws SQLException {
