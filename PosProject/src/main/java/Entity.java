@@ -4,7 +4,7 @@
  * @author Matthias
  */
 public enum Entity {
-    date("sys-date"), time("sys-time"), company("company");
+    date("sys-date"), time("sys-time"), company("sys-name");
 
     private String name;
 

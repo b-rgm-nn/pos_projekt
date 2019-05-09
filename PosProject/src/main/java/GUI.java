@@ -5,6 +5,7 @@ import com.ibm.watson.assistant.v1.model.RuntimeIntent;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.LinkedList;
+import javax.swing.JOptionPane;
 
 
 public class GUI extends javax.swing.JFrame {
@@ -82,9 +83,11 @@ public class GUI extends javax.swing.JFrame {
     
     private void btQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btQueryActionPerformed
         String querytext = tfQuery.getText();
-        MessageResponse response = assistant.query(querytext);
-        for(RuntimeIntent intent : response.getIntents()) {
-//            assistant.(response, intent);
+        try {
+            Query query = assistant.query(querytext);
+            
+        } catch(UnknownQueryException exception) {
+            JOptionPane.showMessageDialog(this, "could not process query: " + exception.getMessage());
         }
     }//GEN-LAST:event_btQueryActionPerformed
 
