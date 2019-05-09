@@ -1,5 +1,15 @@
 
+import com.ibm.watson.assistant.v1.model.MessageResponse;
+import com.ibm.watson.assistant.v1.model.RuntimeEntity;
+import com.ibm.watson.assistant.v1.model.RuntimeIntent;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.LinkedList;
+
+
 public class GUI extends javax.swing.JFrame {
+
+    private WatsonAssistant assistant = new WatsonAssistant();
 
     public GUI() {
         initComponents();
@@ -62,9 +72,20 @@ public class GUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btQueryActionPerformed
+    
+    private void querySingleIfValid(MessageResponse response, RuntimeIntent intent) throws UnknownQueryException{
+        if(!intent.getIntent().equals(Intent.query_single_value.getName()))
+            return;
         
+        
+    }
+    
+    private void btQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btQueryActionPerformed
+        String querytext = tfQuery.getText();
+        MessageResponse response = assistant.query(querytext);
+        for(RuntimeIntent intent : response.getIntents()) {
+//            assistant.(response, intent);
+        }
     }//GEN-LAST:event_btQueryActionPerformed
 
     public static void main(String args[]) {
