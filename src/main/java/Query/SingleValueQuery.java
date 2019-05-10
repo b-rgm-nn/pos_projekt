@@ -23,6 +23,12 @@ public class SingleValueQuery extends Query{
         parseCompany();
     }
     
+    /**
+     * query the open, close, high and low values for the specified company and timeframe
+     * @return list of values, ordered: open, high, low, close
+     * @throws NoDataFoundException if the specified company has no values during the timeframe
+     * @throws SQLException 
+     */
     public List<Double> queryValues() throws NoDataFoundException, SQLException {
         String query = "SELECT *"
                     + "FROM data "

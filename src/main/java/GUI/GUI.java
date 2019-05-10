@@ -6,12 +6,13 @@ import Exceptions.NoDataFoundException;
 import Exceptions.UnknownQueryException;
 import Query.Query;
 import Query.SingleValueQuery;
+import java.awt.Component;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 
 public class GUI extends javax.swing.JFrame {
@@ -44,17 +45,8 @@ public class GUI extends javax.swing.JFrame {
         gridBagConstraints.weightx = 1.0;
         getContentPane().add(tfQuery, gridBagConstraints);
 
-        javax.swing.GroupLayout pnResultLayout = new javax.swing.GroupLayout(pnResult);
-        pnResult.setLayout(pnResultLayout);
-        pnResultLayout.setHorizontalGroup(
-            pnResultLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        pnResultLayout.setVerticalGroup(
-            pnResultLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 277, Short.MAX_VALUE)
-        );
-
+        pnResult.setPreferredSize(new java.awt.Dimension(500, 500));
+        pnResult.setLayout(new java.awt.GridLayout(1, 0));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -83,10 +75,20 @@ public class GUI extends javax.swing.JFrame {
     private void displayQuery(SingleValueQuery query) {
         try {
             List<Double> result = query.queryValues();
-            System.out.printf("open: %.2f\n", result.get(0));
-            System.out.printf("high: %.2f\n", result.get(1));
-            System.out.printf("low: %.2f\n", result.get(2));
-            System.out.printf("close: %.2f\n", result.get(3));
+            List<String> names = new ArrayList<>();
+            names.add("open");
+            names.add("high");
+            names.add("low");
+            names.add("close");
+            
+            for (Component component : pnResult.getComponents()) {
+                if(component instanceof JPanel) {
+                    pnResult.remove(component);
+                }
+            }
+            
+            pnResult.add(new OverlayedBarGraph(result, names));
+            
         } catch (NoDataFoundException ex) {
             System.out.printf("No Entry found for company %s between %s and %s",
                     query.getCompany(), query.getStartDate().format(DateTimeFormatter.ISO_DATE), query.getEndDate().format(DateTimeFormatter.ISO_DATE));
