@@ -38,7 +38,8 @@ public class WatsonAssistant {
                 .input(input)   
                 .build();
         
-        MessageResponse response = assistant.message(options).execute().getResult();
+        MessageResponse response = assistant.
+                message(options).execute().getResult();
         
         for (RuntimeIntent intent : response.getIntents()) {
             if(intent.getIntent().equals(Intent.query_single_value.getName())) {

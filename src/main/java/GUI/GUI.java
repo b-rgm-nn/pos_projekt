@@ -1,26 +1,53 @@
 package GUI;
 
-
 import BL.WatsonAssistant;
 import Exceptions.NoDataFoundException;
 import Exceptions.UnknownQueryException;
 import Query.Query;
 import Query.SingleValueQuery;
+import BL.Value;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
 
 public class GUI extends javax.swing.JFrame {
 
     private WatsonAssistant assistant = new WatsonAssistant();
 
+    private boolean loading = false;
+
     public GUI() {
         initComponents();
+    }
+
+    private void startLoading() {
+        loading = true;
+        Thread t = new Thread(() -> {
+            JLabel label = new JLabel();
+            label.setFont(new Font("Calibri", Font.PLAIN, 40));
+            clearResultsPanel();
+            pnResult.add(label);
+            String loadingPoints = ".";
+            while (loading) {
+                label.setText("Processing" + loadingPoints);
+                if (loadingPoints.length() < 3) {
+                    loadingPoints += ".";
+                } else {
+                    loadingPoints = ".";
+                }
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ex) {
+                }
+            }
+        });
+        t.start();
     }
 
     @SuppressWarnings("unchecked")
@@ -71,24 +98,21 @@ public class GUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
+    private void clearResultsPanel() {
+        for (Component component : pnResult.getComponents()) {
+            if (component instanceof JPanel || component instanceof JLabel) {
+                pnResult.remove(component);
+            }
+        }
+    }
+
     private void displayQuery(SingleValueQuery query) {
         try {
-            List<Double> result = query.queryValues();
-            List<String> names = new ArrayList<>();
-            names.add("open");
-            names.add("high");
-            names.add("low");
-            names.add("close");
-            
-            for (Component component : pnResult.getComponents()) {
-                if(component instanceof JPanel) {
-                    pnResult.remove(component);
-                }
-            }
-            
-            pnResult.add(new OverlayedBarGraph(result, names));
-            
+            Value value = query.queryValue();
+            clearResultsPanel();
+            pnResult.add(new OverlayedBarGraph(value));
+            revalidate();
         } catch (NoDataFoundException ex) {
             System.out.printf("No Entry found for company %s between %s and %s",
                     query.getCompany(), query.getStartDate().format(DateTimeFormatter.ISO_DATE), query.getEndDate().format(DateTimeFormatter.ISO_DATE));
@@ -96,17 +120,23 @@ public class GUI extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
-    
+
     private void btQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btQueryActionPerformed
         String querytext = tfQuery.getText();
-        try {
-            Query query = assistant.query(querytext);
-            if(query instanceof SingleValueQuery) {
-                displayQuery((SingleValueQuery) query);
+        Thread t = new Thread(() -> {
+            try {
+                startLoading();
+                Query query = assistant.query(querytext);
+                loading = false;
+                if (query instanceof SingleValueQuery) {
+                    displayQuery((SingleValueQuery) query);
+                }
+            } catch (UnknownQueryException exception) {
+                JOptionPane.showMessageDialog(this, "could not process query: " + exception.getMessage());
             }
-        } catch(UnknownQueryException exception) {
-            JOptionPane.showMessageDialog(this, "could not process query: " + exception.getMessage());
-        }
+        });
+        t.start();
+
     }//GEN-LAST:event_btQueryActionPerformed
 
     public static void main(String args[]) {

@@ -1,5 +1,6 @@
 package GUI;
 
+import BL.Value;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -16,69 +17,71 @@ public class OverlayedBarGraph extends javax.swing.JPanel {
 
     private double sidePadding = 0.2;
     private double topBotPadding = 0.15;
-    
+
     private int barWidth = 50;
-    
-    private List<Double> values;
-    private List<String> names;
-    private List<Color> colors = new  ArrayList<>();
-    
+
+    private List<Double> values = new ArrayList<>();
+    private List<String> names = new ArrayList<>();
+    private List<Color> colors = new ArrayList<>();
+
     private double maxValue;
     private double minValue;
-    
+
     /**
-     * Creates new form OverlayedBarGraph that displays multiple values as a 
+     * Creates new form OverlayedBarGraph that displays multiple values as a
      * colored, overlayed graph (e.g.min, max as to graphs on top of each other)
      * graph (e.g.min, max as to graphs on top of each other)
-     * @param values the values that should be graphed, ordered from lowest to highest
-     * @param names the corresponding names of the numbers
+     *
+     * @param value the query result to display
      */
-    public OverlayedBarGraph(List<Double> values, List<String> names) {
-        if(values.size() != names.size()) {
+    public OverlayedBarGraph(Value value) {
+        if (values.size() != names.size()) {
             throw new IllegalArgumentException("values and names are not the same length");
         }
-        
-        // bubblesort?
-        boolean edited = true;
-        while(edited) {
-            edited = false;
-            for (int i = 1; i < values.size(); i++) {
-                if(values.get(i-1) < values.get(i)) {
-                    edited = true;
-                    double value = values.get(i);
-                    String name = names.get(i);
-                    values.set(i, values.get(i-1));
-                    names.set(i, names.get(i-1));
-                    values.set(i-1, value);
-                    names.set(i-1, name);
-                }
-            }
+
+        initComponents();
+
+        this.values = new ArrayList<>();
+        this.names = new ArrayList<>();
+
+        values.add(value.getHigh());
+        names.add(String.format("high - %.2f$", value.getHigh()));
+
+        if (value.getClose() > value.getOpen()) {
+            values.add(value.getClose());
+            names.add(String.format("close - %.2f$", value.getClose()));
+            values.add(value.getOpen());
+            names.add(String.format("open - %.2f$", value.getOpen()));
+        } else {
+            values.add(value.getOpen());
+            names.add(String.format("open - %.2f$", value.getOpen()));
+            values.add(value.getClose());
+            names.add(String.format("close - %.2f$", value.getClose()));
         }
-        
-        this.values = values;
-        this.names = names;
-        
+
+        values.add(value.getLow());
+        names.add(String.format("low - %.2f$", value.getLow()));
+
         Random rand = new Random();
         maxValue = minValue = values.get(0);
         for (int i = 0; i < values.size(); i++) {
-            if(values.get(i) > maxValue)
+            if (values.get(i) > maxValue) {
                 maxValue = values.get(i);
-            if(values.get(i) < minValue)
+            }
+            if (values.get(i) < minValue) {
                 minValue = values.get(i);
+            }
             colors.add(new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat()));
         }
-        
-        initComponents();
-        repaint();
     }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
-        
-        int w = (int) (getWidth() * (1-sidePadding*2));
-        int h = (int) (getHeight() * (1-topBotPadding*2));
+
+        int w = (int) (getWidth() * (1 - sidePadding * 2));
+        int h = (int) (getHeight() * (1 - topBotPadding * 2));
         int sidePxl = (int) (getWidth() * sidePadding);
         int topPxl = (int) (getHeight() * topBotPadding);
         double yAxisStartValue = maxValue - 2 * (maxValue - minValue);
@@ -89,44 +92,42 @@ public class OverlayedBarGraph extends javax.swing.JPanel {
         // y axis
         g2d.setStroke(new BasicStroke(3));
         g2d.setColor(Color.black);
-        g2d.drawLine(sidePxl, topPxl+h, sidePxl, topPxl);
+        g2d.drawLine(sidePxl, topPxl + h, sidePxl, topPxl);
         double value = yAxisStartValue;
-        for (double i = topPxl+h; i >= topPxl; i -= steppixelsize) {
-            g2d.drawLine(sidePxl-5, (int) i, sidePxl+5, (int) i);
+        for (double i = topPxl + h; i >= topPxl; i -= steppixelsize) {
+            g2d.drawLine(sidePxl - 5, (int) i, sidePxl + 5, (int) i);
             g2d.drawString(String.format("%.2f", value), sidePxl - 40, (int) i);
             value += stepvaluesize;
         }
-        
+
         // x axis
-        g2d.drawLine(sidePxl, topPxl+h, sidePxl+w, topPxl+h);
-        
+        g2d.drawLine(sidePxl, topPxl + h, sidePxl + w, topPxl + h);
+
         // draw bar
         for (int i = 0; i < values.size(); i++) {
             g2d.setColor(colors.get(i));
             int barHeight = (int) ((values.get(i) - yAxisStartValue) / valuePerPxl);
             g2d.fillRect(sidePxl + 50, topPxl + h - barHeight, barWidth, barHeight);
         }
-        
+
         // draw legend
         int lx = sidePxl + 200;
         int ly = topPxl + h - 30;
-        for (int i = values.size()-1; i >= 0; i--) {
+        for (int i = values.size() - 1; i >= 0; i--) {
             g2d.setColor(colors.get(i));
-            g2d.fillRect(lx - 20, ly-10, 10, 10);
+            g2d.fillRect(lx - 20, ly - 10, 10, 10);
             g2d.setColor(Color.black);
             g2d.drawString(names.get(i), lx, ly);
             ly -= 20;
         }
     }
-    
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")  
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
