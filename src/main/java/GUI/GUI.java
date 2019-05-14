@@ -12,8 +12,6 @@ import java.awt.Font;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -21,7 +19,7 @@ import javax.swing.JPanel;
 public class GUI extends javax.swing.JFrame {
 
     private WatsonAssistant assistant = new WatsonAssistant();
-    private QueryBL queryBL = new QueryBL();
+    private QueryBL queryBL = QueryBL.getInstance();
 
     private boolean loading = false;
     private Query currentQuery;
@@ -80,6 +78,11 @@ public class GUI extends javax.swing.JFrame {
 
         tfQuery.setText("What was the maxmimum value of AAPL in 2015");
         tfQuery.setToolTipText("query");
+        tfQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfQueryActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -161,6 +164,12 @@ public class GUI extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }
+    
+    private void displayCurrentQuery() {
+        if (currentQuery instanceof SingleValueQuery) {
+            displayQuery((SingleValueQuery) currentQuery);
+        }
+    }
 
     private void btQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btQueryActionPerformed
         String querytext = tfQuery.getText();
@@ -169,9 +178,7 @@ public class GUI extends javax.swing.JFrame {
                 startLoading();
                 currentQuery = assistant.query(querytext);
                 loading = false;
-                if (currentQuery instanceof SingleValueQuery) {
-                    displayQuery((SingleValueQuery) currentQuery);
-                }
+                displayCurrentQuery();
             } catch (UnknownQueryException exception) {
                 JOptionPane.showMessageDialog(this, "could not process query: " + exception.getMessage());
             }
@@ -191,7 +198,12 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_miSaveActionPerformed
 
     private void miLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLoadActionPerformed
-        
+        LoadQueryGUI loadQueryGUI = new LoadQueryGUI(this, true);
+        loadQueryGUI.setVisible(true);
+        if(loadQueryGUI.getQuery() != null) {
+            currentQuery = loadQueryGUI.getQuery();
+            displayCurrentQuery();
+        }
     }//GEN-LAST:event_miLoadActionPerformed
 
     private void formWindowDeactivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowDeactivated
@@ -204,6 +216,10 @@ public class GUI extends javax.swing.JFrame {
             ex.printStackTrace();
         }
     }//GEN-LAST:event_formWindowClosing
+
+    private void tfQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfQueryActionPerformed
+        btQueryActionPerformed(evt);
+    }//GEN-LAST:event_tfQueryActionPerformed
 
     public static void main(String args[]) {
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

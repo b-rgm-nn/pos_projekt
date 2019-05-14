@@ -53,6 +53,9 @@ public class Query implements Serializable {
     public String getQueryText() {
         return queryText;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return queryText;
+    }
 }

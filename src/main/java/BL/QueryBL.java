@@ -14,11 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QueryBL {
+    private static QueryBL instance;
     private File file = new File("queries.ser");
     private List<Query> queries = new ArrayList<>();
 
-    public QueryBL() {
+    private QueryBL() {
         load();
+    }
+    
+    public synchronized static QueryBL getInstance() {
+        if(instance == null) {
+            instance = new QueryBL();
+        }
+        return instance;
     }
     
     private void load() {
