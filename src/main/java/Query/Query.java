@@ -6,18 +6,21 @@ import Enum.Entity;
 import Exceptions.UnknownQueryException;
 import com.ibm.watson.assistant.v1.model.MessageResponse;
 import com.ibm.watson.assistant.v1.model.RuntimeEntity;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 
 
-public class Query {
+public class Query implements Serializable {
     protected static DateTimeFormatter dtf = DateTimeFormatter.ISO_DATE;
     protected MessageResponse response;
     protected LocalDate startDate, endDate;
+    protected String queryText;
 
     public Query(MessageResponse messageResponse) throws UnknownQueryException {
         this.response = messageResponse;
+        this.queryText = messageResponse.getInput().text();
         parseTimeRange();
     }
     
@@ -46,4 +49,10 @@ public class Query {
     public LocalDate getEndDate() {
         return endDate;
     }
+
+    public String getQueryText() {
+        return queryText;
+    }
+    
+    
 }

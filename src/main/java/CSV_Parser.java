@@ -85,10 +85,10 @@ public class CSV_Parser {
     
     public static void main(String[] args) throws Exception {
         CSV_Parser parser = new CSV_Parser();
-        parser.parseCompanyNames();
         if(true) {
             throw new Exception("Data has already been parsed");
         }
+        parser.parseCompanyNames();
         try {
             parser.parseStocks();
         } catch (SQLException ex) {

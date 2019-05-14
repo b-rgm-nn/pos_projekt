@@ -1,17 +1,19 @@
 package GUI;
 
+import BL.QueryBL;
 import BL.WatsonAssistant;
 import Exceptions.NoDataFoundException;
 import Exceptions.UnknownQueryException;
-import Query.Query;
 import Query.SingleValueQuery;
 import BL.Value;
-import java.awt.Color;
+import Query.Query;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Graphics2D;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,9 +21,11 @@ import javax.swing.JPanel;
 public class GUI extends javax.swing.JFrame {
 
     private WatsonAssistant assistant = new WatsonAssistant();
+    private QueryBL queryBL = new QueryBL();
 
     private boolean loading = false;
-
+    private Query currentQuery;
+        
     public GUI() {
         initComponents();
     }
@@ -58,8 +62,20 @@ public class GUI extends javax.swing.JFrame {
         tfQuery = new javax.swing.JTextField();
         pnResult = new javax.swing.JPanel();
         btQuery = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        miSave = new javax.swing.JMenuItem();
+        miLoad = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+            public void windowDeactivated(java.awt.event.WindowEvent evt) {
+                formWindowDeactivated(evt);
+            }
+        });
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         tfQuery.setText("What was the maxmimum value of AAPL in 2015");
@@ -96,6 +112,31 @@ public class GUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         getContentPane().add(btQuery, gridBagConstraints);
 
+        jMenu1.setMnemonic('f');
+        jMenu1.setText("File");
+
+        miSave.setMnemonic('s');
+        miSave.setText("Save");
+        miSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miSaveActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miSave);
+
+        miLoad.setMnemonic('L');
+        miLoad.setText("Load");
+        miLoad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miLoadActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miLoad);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -126,10 +167,10 @@ public class GUI extends javax.swing.JFrame {
         Thread t = new Thread(() -> {
             try {
                 startLoading();
-                Query query = assistant.query(querytext);
+                currentQuery = assistant.query(querytext);
                 loading = false;
-                if (query instanceof SingleValueQuery) {
-                    displayQuery((SingleValueQuery) query);
+                if (currentQuery instanceof SingleValueQuery) {
+                    displayQuery((SingleValueQuery) currentQuery);
                 }
             } catch (UnknownQueryException exception) {
                 JOptionPane.showMessageDialog(this, "could not process query: " + exception.getMessage());
@@ -138,6 +179,31 @@ public class GUI extends javax.swing.JFrame {
         t.start();
 
     }//GEN-LAST:event_btQueryActionPerformed
+
+    private void miSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSaveActionPerformed
+        if(currentQuery == null) {
+            JOptionPane.showMessageDialog(this, "Execute a query in order to save it");
+            return;
+        }
+        if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this, "Save the Query: " + currentQuery.getQueryText() + "?")) {
+            queryBL.addFavourite(currentQuery);
+        }
+    }//GEN-LAST:event_miSaveActionPerformed
+
+    private void miLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miLoadActionPerformed
+        
+    }//GEN-LAST:event_miLoadActionPerformed
+
+    private void formWindowDeactivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowDeactivated
+    }//GEN-LAST:event_formWindowDeactivated
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        try {
+            queryBL.save();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_formWindowClosing
 
     public static void main(String args[]) {
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -171,6 +237,10 @@ public class GUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btQuery;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem miLoad;
+    private javax.swing.JMenuItem miSave;
     private javax.swing.JPanel pnResult;
     private javax.swing.JTextField tfQuery;
     // End of variables declaration//GEN-END:variables
