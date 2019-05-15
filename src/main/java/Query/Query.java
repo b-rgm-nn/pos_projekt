@@ -23,7 +23,7 @@ public class Query implements Serializable {
     /**
      * parse the messageResponse Watson returned
      * @param messageResponse the messageResponse Watson returned
-     * @throws UnknownQueryException 
+     * @throws UnknownQueryException when there's the wrong number of dates
      */
     public Query(MessageResponse messageResponse) throws UnknownQueryException {
         this.queryText = messageResponse.getInput().text();

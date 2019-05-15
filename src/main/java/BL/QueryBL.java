@@ -60,8 +60,8 @@ public class QueryBL {
     
     /**
      * write all saved queries to queries.ser
-     * @throws FileNotFoundException
-     * @throws IOException 
+     * @throws FileNotFoundException when saving fails
+     * @throws IOException when saving fails
      */
     public void save() throws FileNotFoundException, IOException {
         try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
@@ -81,7 +81,7 @@ public class QueryBL {
     
     /**
      * remove a query from the saved queries
-     * @param q 
+     * @param q the query to be removed from saved queries
      */
     public void removeFromFavourites(Query q) {
         queries.add(q);

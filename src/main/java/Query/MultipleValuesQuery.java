@@ -31,7 +31,7 @@ public class MultipleValuesQuery extends Query {
      * get the values that match the query
      * @return an unordered list of all the values that lie between the two
      * specified dates
-     * @throws SQLException 
+     * @throws SQLException when conneciton fails  
      */
     public List<Value> queryValues() throws SQLException {
         String query = "SELECT *"

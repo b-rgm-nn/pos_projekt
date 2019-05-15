@@ -70,7 +70,7 @@ public class Database {
      * create a scrollable prepared statement
      * @param sql the sql to execute
      * @return the Prepared Statement
-     * @throws SQLException 
+     * @throws SQLException when conneciton fails 
      */
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -80,7 +80,7 @@ public class Database {
      * Execute an sql query and return the scrollable ResultSet
      * @param sql the query to execute
      * @return scrollable ResultSet
-     * @throws SQLException 
+     * @throws SQLException when conneciton fails 
      */
     public ResultSet query(String sql) throws SQLException {
         Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -92,7 +92,7 @@ public class Database {
     /**
      * Execute a statement that alters data
      * @param sql the statement to execute
-     * @throws SQLException 
+     * @throws SQLException when conneciton fails  
      */
     public void update(String sql) throws SQLException {
         Statement statement = conn.createStatement();

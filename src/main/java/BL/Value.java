@@ -17,11 +17,11 @@ public class Value implements Comparable<Value> {
 
     /**
      * pure data class
-     * @param date
-     * @param low
-     * @param high
-     * @param open
-     * @param close 
+     * @param date date
+     * @param low low
+     * @param high high
+     * @param open open
+     * @param close  close
      */
     public Value(LocalDate date, double low, double high, double open, double close) {
         this.date = date;

@@ -28,7 +28,7 @@ public class SingleValueQuery extends Query {
      * @return The requested Value: open, high, low, close
      * @throws NoDataFoundException if the specified company has no values
      * during the timeframe
-     * @throws SQLException
+     * @throws SQLException when conneciton fails 
      */
     public Value queryValue() throws NoDataFoundException, SQLException {
         String highLowQuery = "SELECT MAX(high), MIN(low) "

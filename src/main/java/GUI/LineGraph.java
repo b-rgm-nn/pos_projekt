@@ -33,6 +33,7 @@ public class LineGraph extends javax.swing.JPanel {
      * Draws a line graph over the passed values, using the highest value of
      * each day
      * @param values all values that should be included
+     * @throws NoDataFoundException when there's nothing to draw
      */
     public LineGraph(List<Value> values) throws NoDataFoundException {
         initComponents();
