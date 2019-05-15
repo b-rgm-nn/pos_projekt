@@ -62,7 +62,7 @@ public class GUI extends javax.swing.JFrame {
         } catch(SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Could not connect to Database " + 
-                    ", check if db_login.txt is configured correctly, check log for stack trace");
+                    ", check if db_login.txt is configured correctly, check console for stack trace");
             System.exit(0);
         }
         CSV_Parser csvParser = new CSV_Parser();
@@ -248,7 +248,7 @@ public class GUI extends javax.swing.JFrame {
         try {
             Value value = query.queryValue();
             clearResultsPanel();
-            pnResult.add(new OverlayedBarGraph(value));
+            pnResult.add(new OverlayedBarGraph(value, query.getCompany()));
             revalidate();
         } catch (NoDataFoundException ex) {
             noResults(query);
@@ -261,7 +261,7 @@ public class GUI extends javax.swing.JFrame {
         try {
             List<Value> values = query.queryValues();
             clearResultsPanel();
-            pnResult.add(new LineGraph(values));
+            pnResult.add(new LineGraph(values, query.getCompany()));
             revalidate();
         } catch (NoDataFoundException ex) {
             noResults(query);

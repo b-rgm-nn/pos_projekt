@@ -2,10 +2,13 @@ package GUI;
 
 import BL.Value;
 import Exceptions.NoDataFoundException;
+import Query.Query;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,16 +32,20 @@ public class LineGraph extends javax.swing.JPanel {
     private long minDate = Long.MAX_VALUE;
     private long maxDate = 0;
     
+    private String companySymbol;
+    
     /**
      * Draws a line graph over the passed values, using the highest value of
      * each day
      * @param values all values that should be included
+     * @param companySymbol the symbol of the company that is shown
      * @throws NoDataFoundException when there's nothing to draw
      */
-    public LineGraph(List<Value> values) throws NoDataFoundException {
+    public LineGraph(List<Value> values, String companySymbol) throws NoDataFoundException {
         initComponents();
 
         this.values = values;
+        this.companySymbol = companySymbol;
         
         if(values.isEmpty()) {
             throw new NoDataFoundException();
@@ -66,13 +73,29 @@ public class LineGraph extends javax.swing.JPanel {
         int h = (int) (getHeight() * (1 - topBotPadding * 2));
         int sidePxl = (int) (getWidth() * sidePadding);
         int topPxl = (int) (getHeight() * topBotPadding);
-        double yAxisStartValue = maxValue - 2 * (maxValue - minValue);
+        double yAxisStartValue = ((int) (maxValue - 2 * (maxValue - minValue))) / 10 * 10;
         double valuePerPxl = (maxValue - yAxisStartValue) / h;
-        double stepvaluesize = Math.pow(10, String.valueOf((int) (maxValue - yAxisStartValue)).length()) / 10;
+        double stepvaluesize = ((int) (valuePerPxl * h / 5));
+        if(stepvaluesize > 5) {
+            stepvaluesize = ((int) stepvaluesize) / 5 * 5;
+        }
+        if(stepvaluesize < 1) stepvaluesize = 1;
         double steppixelsize = 1.0 / (valuePerPxl / stepvaluesize);
+
+        // title
+        g2d.setColor(Color.black);
+        int fontSize = (int) Math.min(topPxl * 0.6, 25);
+        g2d.setFont(new Font("Calibri", Font.PLAIN, fontSize));
+        String companyName = "unknown";
+        try {
+            companyName = Query.companyName(companySymbol);
+        } catch (SQLException e) {
+        }
+        g2d.drawString(companySymbol + " - " + companyName, sidePxl, (int) (topPxl * 0.65));
 
         // y axis
         g2d.setStroke(new BasicStroke(3));
+        g2d.setFont(new Font("Calibri", Font.PLAIN, 13));
         g2d.setColor(Color.black);
         g2d.drawLine(sidePxl, topPxl + h, sidePxl, topPxl);
         double yAxisValue = yAxisStartValue;

@@ -1,12 +1,16 @@
 package Query;
 
 
+import BL.Database;
 import BL.LocalDateComparator;
 import Enum.Entity;
 import Exceptions.UnknownQueryException;
 import com.ibm.watson.assistant.v1.model.MessageResponse;
 import com.ibm.watson.assistant.v1.model.RuntimeEntity;
 import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
@@ -17,6 +21,7 @@ import java.util.LinkedList;
  */
 public class Query implements Serializable {
     protected static DateTimeFormatter dtf = DateTimeFormatter.ISO_DATE;
+
     protected LocalDate startDate, endDate;
     protected String queryText;
 
@@ -51,6 +56,25 @@ public class Query implements Serializable {
         
         startDate = dates.get(0);
         endDate = dates.size() == 1 ? startDate : dates.get(1);
+    }
+
+    /**
+     * get the company name that corresponds to a stock symbol
+     * @param companySymbol the symbol of the company
+     * @return the name of the company
+     * @throws SQLException when something goes wrong
+     */
+    public static String companyName(String companySymbol) throws SQLException {
+        String query = "SELECT name "
+                + "FROM companies "
+                + "WHERE UPPER(symbol) = UPPER(?);";
+        PreparedStatement statement = Database.getInstance().prepareStatement(query);
+        statement.setString(1, companySymbol);
+        ResultSet resultSet = statement.executeQuery();
+        if(resultSet.first()) {
+            return resultSet.getString("name");
+        }
+        throw new SQLException();
     }
 
     public LocalDate getStartDate() {
