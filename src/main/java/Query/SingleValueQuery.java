@@ -33,25 +33,40 @@ public class SingleValueQuery extends Query {
      * @throws SQLException
      */
     public Value queryValue() throws NoDataFoundException, SQLException {
-        String query = "SELECT *"
+        String highLowQuery = "SELECT MAX(high), MIN(low) "
+                + "FROM data "
+                + "WHERE symbol = ? "
+                + "     AND date BETWEEN ? AND ? ";
+        PreparedStatement highLowStatement = Database.getInstance().prepareStatement(highLowQuery);
+        highLowStatement.setString(1, company);
+        highLowStatement.setDate(2, Date.valueOf(startDate));
+        highLowStatement.setDate(3, Date.valueOf(endDate));
+
+        ResultSet highLowResultSet = highLowStatement.executeQuery();
+        if (!highLowResultSet.first()) {
+            throw new NoDataFoundException();
+        }
+
+        String openCloseQuery = "SELECT open, close "
                 + "FROM data "
                 + "WHERE symbol = ? "
                 + "     AND date BETWEEN ? AND ? "
-                + "ORDER BY date;";
-        PreparedStatement statement = Database.getInstance().prepareStatement(query);
-        statement.setString(1, company);
-        statement.setDate(2, Date.valueOf(startDate));
-        statement.setDate(3, Date.valueOf(endDate));
+                + "ORDER BY date";
+        PreparedStatement openCloseStatement = Database.getInstance().prepareStatement(openCloseQuery);
+        openCloseStatement.setString(1, company);
+        openCloseStatement.setDate(2, Date.valueOf(startDate));
+        openCloseStatement.setDate(3, Date.valueOf(endDate));
 
-        ResultSet resultSet = statement.executeQuery();
-        if (!resultSet.first()) {
-            throw new NoDataFoundException();
-        }
+        ResultSet openCloseResultSet = openCloseStatement.executeQuery();
+        openCloseResultSet.first();
+        double open = openCloseResultSet.getDouble("open");
+        openCloseResultSet.last();
+        double close = openCloseResultSet.getDouble("close");
         return new Value(startDate,
-                resultSet.getDouble("low"),
-                resultSet.getDouble("high"),
-                resultSet.getDouble("open"),
-                resultSet.getDouble("close"));
+                highLowResultSet.getDouble(2),
+                highLowResultSet.getDouble(1),
+                open,
+                close);
     }
 
     public List<Value> queryValues() throws SQLException {
