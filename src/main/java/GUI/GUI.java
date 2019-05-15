@@ -1,5 +1,6 @@
 package GUI;
 
+import BL.Database;
 import BL.QueryBL;
 import BL.WatsonAssistant;
 import Exceptions.NoDataFoundException;
@@ -11,12 +12,16 @@ import Query.Query;
 import java.awt.Component;
 import java.awt.Font;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import parser.CSV_Parser;
 
 /**
  * sample queries
@@ -45,6 +50,55 @@ public class GUI extends javax.swing.JFrame {
         
     public GUI() {
         initComponents();
+        initDBIfNotExists();
+    }
+    
+    private void initDBIfNotExists() {
+        try {
+            Database.getInstance();
+        } catch(SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Could not connect to Database " + 
+                    ", check if db_login.txt is configured correctly, check log for stack trace");
+            System.exit(0);
+        }
+        CSV_Parser csvParser = new CSV_Parser();
+        try {
+            csvParser.createTables();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        try {
+            ResultSet dataCount = Database.getInstance().query("SELECT COUNT(*) FROM data");
+            dataCount.first();
+            if(dataCount.getInt(1) > 0) {
+                return;
+            }
+        } catch (SQLException ex) {
+        }
+        System.out.println("Please Confirm Dialog (might be hidden the background)");
+        if(JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(this, "No Data has been found, parse from CSV into DB?"
+                + " This takes around 3 minutes")) {
+            return;
+        }
+        new Thread(() -> {
+            System.out.println("Starting import");
+            while (csvParser.getProgress() >= 0) {
+                System.out.printf("Progress: %.2f%%\n", csvParser.getProgress());
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                }
+            }
+        }).start();
+        try {
+            csvParser.parseCompanyNames();
+            csvParser.parseStocks();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Could not parse csv, check log for stack trace");
+            System.exit(0);
+        }
     }
 
     private void startLoading() {
@@ -78,6 +132,7 @@ public class GUI extends javax.swing.JFrame {
         label.setFont(new Font("Calibri", Font.PLAIN, 40));
         clearResultsPanel();
         pnResult.add(label);
+        revalidate();
     }
 
     @SuppressWarnings("unchecked")
@@ -225,7 +280,11 @@ public class GUI extends javax.swing.JFrame {
                 loading = false;
                 displayCurrentQuery();
             } catch (UnknownQueryException exception) {
+                loading = false;
                 JOptionPane.showMessageDialog(this, "could not process query: " + exception.getMessage());
+                clearResultsPanel();
+                repaint();
+                pnResult.repaint();
             }
         });
         t.start();

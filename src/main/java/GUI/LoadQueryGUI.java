@@ -38,6 +38,7 @@ public class LoadQueryGUI extends javax.swing.JDialog {
         list = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(500, 353));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         btLoad.setText("Load");

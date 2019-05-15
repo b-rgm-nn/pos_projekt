@@ -36,12 +36,16 @@ public class MultipleValuesQuery extends Query {
         List<Value> values = new ArrayList<>();
         ResultSet resultSet = statement.executeQuery();
         resultSet.first();
+        if (!resultSet.isFirst()) {
+            return values;
+        }
         do {
             values.add(new Value(resultSet.getDate("date").toLocalDate(),
                     resultSet.getDouble("low"),
                     resultSet.getDouble("high"),
                     resultSet.getDouble("open"),
                     resultSet.getDouble("close")));
+            resultSet.next();
         } while (resultSet.next());
         return values;
     }

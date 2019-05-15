@@ -1,0 +1,4 @@
+username= postgres
+pw 	= bermac16
+dbname 	= projekt_neu_test
+POS3_CHIF16_bermac16_projekt

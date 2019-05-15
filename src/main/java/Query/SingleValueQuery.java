@@ -58,9 +58,13 @@ public class SingleValueQuery extends Query {
         openCloseStatement.setDate(3, Date.valueOf(endDate));
 
         ResultSet openCloseResultSet = openCloseStatement.executeQuery();
-        openCloseResultSet.first();
+        if(!openCloseResultSet.first()) {
+            throw new NoDataFoundException();
+        }
         double open = openCloseResultSet.getDouble("open");
-        openCloseResultSet.last();
+        if(!openCloseResultSet.last()) {
+            throw new NoDataFoundException();
+        }
         double close = openCloseResultSet.getDouble("close");
         return new Value(startDate,
                 highLowResultSet.getDouble(2),

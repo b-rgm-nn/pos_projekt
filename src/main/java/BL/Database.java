@@ -1,12 +1,16 @@
 package BL;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -22,7 +26,31 @@ public class Database {
      * @throws SQLException when connection to database is unsuccessful
      */
     private Database() throws SQLException {
-        conn = DriverManager.getConnection("jdbc:postgresql://localhost/projekt", "postgres", "bermac16");
+        File login = new File("db_login.txt");
+        String dbname = "";
+        String username = "";
+        String pw = "";
+        
+        try(BufferedReader br = new BufferedReader(new FileReader(login))) {
+            String line = "";
+            while((line = br.readLine()) != null) {
+                if(line.startsWith("username")) {
+                    username = line.split("=")[1].trim();
+                }
+                if(line.startsWith("pw")) {
+                    pw = line.split("=")[1].trim();
+                }
+                if(line.startsWith("dbname")) {
+                    dbname = line.split("=")[1].trim();
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Could not read login data from db_login.txt");
+            System.exit(0);
+        }
+        
+        conn = DriverManager.getConnection("jdbc:postgresql://localhost/" + dbname, username, pw);
     }
 
     /**
@@ -42,9 +70,9 @@ public class Database {
     }
     
     public ResultSet query(String sql) throws SQLException {
-        Statement statement = conn.createStatement();
+        Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ResultSet result = statement.executeQuery(sql);
-        statement.close();
+        result.first();
         return result;
     }
     
