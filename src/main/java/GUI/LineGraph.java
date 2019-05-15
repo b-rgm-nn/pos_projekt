@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,7 +75,7 @@ public class LineGraph extends javax.swing.JPanel {
         int h = (int) (getHeight() * (1 - topBotPadding * 2));
         int sidePxl = (int) (getWidth() * sidePadding);
         int topPxl = (int) (getHeight() * topBotPadding);
-        double yAxisStartValue = ((int) (maxValue - 2 * (maxValue - minValue))) / 10 * 10;
+        double yAxisStartValue = ((int) Math.max(0, maxValue - 1.5 * (maxValue - minValue))) / 10 * 10;
         double valuePerPxl = (maxValue - yAxisStartValue) / h;
         double stepvaluesize = ((int) (valuePerPxl * h / 5));
         if(stepvaluesize > 5) {
@@ -107,6 +109,8 @@ public class LineGraph extends javax.swing.JPanel {
 
         // x axis
         g2d.drawLine(sidePxl, topPxl + h, sidePxl + w, topPxl + h);
+        g2d.drawString(LocalDate.ofEpochDay(minDate).format(DateTimeFormatter.ofPattern("dd.MM.YYYY")), sidePxl, topPxl + h + 15);
+        g2d.drawString(LocalDate.ofEpochDay(maxDate).format(DateTimeFormatter.ofPattern("dd.MM.YYYY")), sidePxl + w - 5, topPxl + h + 15);
         
         // line graph
         g2d.setColor(color);
