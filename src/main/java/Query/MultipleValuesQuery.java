@@ -20,7 +20,7 @@ public class MultipleValuesQuery extends Query {
 
     public MultipleValuesQuery(MessageResponse messageResponse) throws UnknownQueryException {
         super(messageResponse);
-        parseCompany();
+        parseCompany(messageResponse);
     }
 
     public List<Value> queryValues() throws SQLException {
@@ -50,7 +50,7 @@ public class MultipleValuesQuery extends Query {
         return values;
     }
 
-    private void parseCompany() throws UnknownQueryException {
+    private void parseCompany(MessageResponse response) throws UnknownQueryException {
         for (RuntimeEntity entity : response.getEntities()) {
             if (entity.getEntity().equals(Entity.company.getName())) {
                 company = entity.getValue();

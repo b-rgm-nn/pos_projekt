@@ -14,17 +14,15 @@ import java.util.LinkedList;
 
 public class Query implements Serializable {
     protected static DateTimeFormatter dtf = DateTimeFormatter.ISO_DATE;
-    protected MessageResponse response;
     protected LocalDate startDate, endDate;
     protected String queryText;
 
     public Query(MessageResponse messageResponse) throws UnknownQueryException {
-        this.response = messageResponse;
         this.queryText = messageResponse.getInput().text();
-        parseTimeRange();
+        parseTimeRange(messageResponse);
     }
     
-    private void parseTimeRange() throws UnknownQueryException {
+    private void parseTimeRange(MessageResponse response) throws UnknownQueryException {
         LinkedList<LocalDate> dates = new LinkedList<>();
         
         for (RuntimeEntity entity : response.getEntities()) {
@@ -33,13 +31,13 @@ public class Query implements Serializable {
             }
         }
         
-        if(dates.size() != 2)
+        if(dates.size() < 1 || dates.size() > 2)
             throw new UnknownQueryException("wrong number of dates");
         
         dates.sort(new LocalDateComparator());
         
         startDate = dates.get(0);
-        endDate = dates.get(1);
+        endDate = dates.size() == 1 ? startDate : dates.get(1);
     }
 
     public LocalDate getStartDate() {

@@ -11,8 +11,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SingleValueQuery extends Query {
 
@@ -20,7 +18,7 @@ public class SingleValueQuery extends Query {
 
     public SingleValueQuery(MessageResponse messageResponse) throws UnknownQueryException {
         super(messageResponse);
-        parseCompany();
+        parseCompany(messageResponse);
     }
 
     /**
@@ -73,7 +71,7 @@ public class SingleValueQuery extends Query {
                 close);
     }
 
-    private void parseCompany() throws UnknownQueryException {
+    private void parseCompany(MessageResponse response) throws UnknownQueryException {
         for (RuntimeEntity entity : response.getEntities()) {
             if (entity.getEntity().equals(Entity.company.getName())) {
                 company = entity.getValue();
