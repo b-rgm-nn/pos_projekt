@@ -3,6 +3,7 @@ package BL;
 
 import Exceptions.UnknownQueryException;
 import Enum.Intent;
+import Query.MultipleValuesQuery;
 import Query.SingleValueQuery;
 import Query.Query;
 import com.ibm.cloud.sdk.core.service.security.IamOptions;
@@ -41,13 +42,22 @@ public class WatsonAssistant {
         MessageResponse response = assistant.
                 message(options).execute().getResult();
         
+
+        RuntimeIntent mostConfidentIntent = null;
         for (RuntimeIntent intent : response.getIntents()) {
-            if(intent.getIntent().equals(Intent.query_single_value.getName())) {
-                return new SingleValueQuery(response);
+            if(mostConfidentIntent == null || intent.getConfidence() > mostConfidentIntent.getConfidence()){
+                mostConfidentIntent = intent;
             }
         }
-        
-        throw new UnknownQueryException("No intent found");
+        if(mostConfidentIntent == null)
+            throw new UnknownQueryException("No intent found");
+        if(mostConfidentIntent.getIntent().equals(Intent.query_single_value.getName())) {
+            return new SingleValueQuery(response);
+        }
+        if(mostConfidentIntent.getIntent().equals(Intent.query_multiple_values.getName())) {
+            return new MultipleValuesQuery(response);
+        }
+        throw new UnknownQueryException("Unknown Intent " + mostConfidentIntent.getIntent());
     }
 
 }

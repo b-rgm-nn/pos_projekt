@@ -3,7 +3,7 @@ package BL;
 
 import java.time.LocalDate;
 
-public class Value {
+public class Value implements Comparable<Value> {
     private LocalDate date;
     private double low;
     private double high;
@@ -26,10 +26,6 @@ public class Value {
         return close;
     }
 
-    /**
-     * blaze it 420
-     * @return high
-     */
     public double getHigh() {
         return high;
     }
@@ -40,5 +36,10 @@ public class Value {
 
     public double getOpen() {
         return open;
+    }
+
+    @Override
+    public int compareTo(Value o) {
+        return date.compareTo(o.date);
     }
 }

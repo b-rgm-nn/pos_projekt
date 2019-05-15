@@ -1,11 +1,12 @@
 package GUI;
 
 import BL.Value;
+import Exceptions.NoDataFoundException;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,21 +21,37 @@ public class LineGraph extends javax.swing.JPanel {
     private int barWidth = 50;
 
     private List<Value> values;
-    private Color color = new Color(0, 255, 0);
+    private Color color = new Color(0, 0, 200);
 
-    private double maxValue;
-    private double minValue;
+    private double maxValue = 0;
+    private double minValue = Double.MAX_VALUE;
     
-    public LineGraph(List<Value> values) {
+    private long minDate = Long.MAX_VALUE;
+    private long maxDate = 0;
+    
+    /**
+     * Draws a line graph over the passed values, using the highest value of
+     * each day
+     * @param values all values that should be included
+     */
+    public LineGraph(List<Value> values) throws NoDataFoundException {
         initComponents();
 
         this.values = values;
-
-        if(values.size() == 0) {
-            maxValue = minValue = 0;
+        
+        if(values.isEmpty()) {
+            throw new NoDataFoundException();
         }
         
+        Collections.sort(values);
+
         
+        for (Value value : values) {
+            maxValue = Double.max(maxValue, value.getHigh());
+            minValue = Double.min(minValue, value.getHigh());
+            maxDate = Long.max(maxDate, value.getDate().toEpochDay());
+            minDate = Long.min(minDate, value.getDate().toEpochDay());
+        }
         
         repaint();
     }
@@ -57,17 +74,32 @@ public class LineGraph extends javax.swing.JPanel {
         g2d.setStroke(new BasicStroke(3));
         g2d.setColor(Color.black);
         g2d.drawLine(sidePxl, topPxl + h, sidePxl, topPxl);
-        double value = yAxisStartValue;
+        double yAxisValue = yAxisStartValue;
         for (double i = topPxl + h; i >= topPxl; i -= steppixelsize) {
             g2d.drawLine(sidePxl - 5, (int) i, sidePxl + 5, (int) i);
-            g2d.drawString(String.format("%.2f", value), sidePxl - 40, (int) i);
-            value += stepvaluesize;
+            g2d.drawString(String.format("%.2f", yAxisValue), sidePxl - 40, (int) i);
+            yAxisValue += stepvaluesize;
         }
 
         // x axis
         g2d.drawLine(sidePxl, topPxl + h, sidePxl + w, topPxl + h);
+        
+        g2d.setColor(color);
+        for (int i = 1; i < values.size(); i++) {
+            g2d.drawLine(calcXCoord(values.get(i-1).getDate().toEpochDay(), w, sidePxl), 
+                    calcYCoord(values.get(i-1).getHigh(), h, topPxl, yAxisStartValue),
+                    calcXCoord(values.get(i).getDate().toEpochDay(), w, sidePxl), 
+                    calcYCoord(values.get(i).getHigh(), h, topPxl, yAxisStartValue));
+        }
     }
     
+    private int calcXCoord(long date, int w, int sidePxl) {
+        return sidePxl + (int) (w * (date - minDate) / (maxDate - minDate));
+    }
+    
+    private int calcYCoord(double value, int h, int topPxl, double yAxisStartValue) {
+        return topPxl + h - (int) (h * (value - yAxisStartValue) / (maxValue - yAxisStartValue));
+    }
     
 
     /**

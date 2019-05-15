@@ -69,28 +69,6 @@ public class SingleValueQuery extends Query {
                 close);
     }
 
-    public List<Value> queryValues() throws SQLException {
-        String query = "SELECT *"
-                + "FROM data "
-                + "WHERE symbol = ? "
-                + "     AND date BETWEEN ? AND ?;";
-        PreparedStatement statement = Database.getInstance().prepareStatement(query);
-        statement.setString(1, company);
-        statement.setDate(2, Date.valueOf(startDate));
-        statement.setDate(3, Date.valueOf(endDate));
-
-        List<Value> values = new ArrayList<>();
-        ResultSet resultSet = statement.executeQuery();
-        do {
-            values.add(new Value(startDate,
-                    resultSet.getDouble("low"),
-                    resultSet.getDouble("high"),
-                    resultSet.getDouble("open"),
-                    resultSet.getDouble("close")));
-        } while (resultSet.next());
-        return values;
-    }
-
     private void parseCompany() throws UnknownQueryException {
         for (RuntimeEntity entity : response.getEntities()) {
             if (entity.getEntity().equals(Entity.company.getName())) {

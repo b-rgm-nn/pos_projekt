@@ -62,7 +62,7 @@
   <SubComponents>
     <Component class="javax.swing.JTextField" name="tfQuery">
       <Properties>
-        <Property name="text" type="java.lang.String" value="What was the maxmimum value of AAPL in 2015"/>
+        <Property name="text" type="java.lang.String" value="How did MSFT value develop in 2015 "/>
         <Property name="toolTipText" type="java.lang.String" value="query"/>
       </Properties>
       <Events>

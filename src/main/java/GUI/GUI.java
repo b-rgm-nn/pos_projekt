@@ -6,15 +6,34 @@ import Exceptions.NoDataFoundException;
 import Exceptions.UnknownQueryException;
 import Query.SingleValueQuery;
 import BL.Value;
+import Query.MultipleValuesQuery;
 import Query.Query;
 import java.awt.Component;
 import java.awt.Font;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+/**
+ * sample queries
+ * 
+ * multiple values:
+How did MSFT value develop in 2015
+How did GM value change between 5th November 2017 and 10th November 2017
+How did the stock value of AAPL change in 2013
+What was the development of T in 2013
+* 
+* single value:
+How high was stock of AAPL on November 18th 2014
+How valuable was IBM two years ago
+What is the stock value of MSFT today
+What was the value of GM in 2015
+ * @author Matthias
+ */
 
 public class GUI extends javax.swing.JFrame {
 
@@ -51,6 +70,15 @@ public class GUI extends javax.swing.JFrame {
         });
         t.start();
     }
+    
+    private void noResults(Query query) {
+        JLabel label = new JLabel();
+        label.setText(String.format("No Entry found between %s and %s",
+                    query.getStartDate().format(DateTimeFormatter.ISO_DATE), query.getEndDate().format(DateTimeFormatter.ISO_DATE)));
+        label.setFont(new Font("Calibri", Font.PLAIN, 40));
+        clearResultsPanel();
+        pnResult.add(label);
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -76,7 +104,7 @@ public class GUI extends javax.swing.JFrame {
         });
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        tfQuery.setText("What was the maxmimum value of AAPL in 2015");
+        tfQuery.setText("How did MSFT value develop in 2015 ");
         tfQuery.setToolTipText("query");
         tfQuery.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -158,8 +186,20 @@ public class GUI extends javax.swing.JFrame {
             pnResult.add(new OverlayedBarGraph(value));
             revalidate();
         } catch (NoDataFoundException ex) {
-            System.out.printf("No Entry found for company %s between %s and %s",
-                    query.getCompany(), query.getStartDate().format(DateTimeFormatter.ISO_DATE), query.getEndDate().format(DateTimeFormatter.ISO_DATE));
+            noResults(query);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void displayQuery(MultipleValuesQuery query) {
+        try {
+            List<Value> values = query.queryValues();
+            clearResultsPanel();
+            pnResult.add(new LineGraph(values));
+            revalidate();
+        } catch (NoDataFoundException ex) {
+            noResults(query);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -168,6 +208,11 @@ public class GUI extends javax.swing.JFrame {
     private void displayCurrentQuery() {
         if (currentQuery instanceof SingleValueQuery) {
             displayQuery((SingleValueQuery) currentQuery);
+        }
+        else if(currentQuery instanceof MultipleValuesQuery) {
+            displayQuery((MultipleValuesQuery) currentQuery);
+        } else {
+            JOptionPane.showMessageDialog(this, "unknown Query type");
         }
     }
 
