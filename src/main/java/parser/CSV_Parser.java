@@ -19,7 +19,7 @@ public class CSV_Parser {
     private long rows = 1;
 
     /**
-     * parse the
+     * parse the stock data from the csv and write it into the database
      *
      * @throws SQLException
      */
@@ -64,6 +64,10 @@ public class CSV_Parser {
         index = -1;
     }
 
+    /**
+     * parse the company name translation from csv to the database
+     * @throws SQLException 
+     */
     public void parseCompanyNames() throws SQLException {
         Database database = Database.getInstance();
         database.update("DELETE FROM companies WHERE 1=1");
@@ -86,6 +90,10 @@ public class CSV_Parser {
         }
     }
 
+    /**
+     * create the companies and data table if they don't exist yet
+     * @throws SQLException 
+     */
     public void createTables() throws SQLException {
         String createSQL = "CREATE TABLE IF NOT EXISTS companies ("
                 + "symbol VARCHAR(5),"
@@ -107,6 +115,11 @@ public class CSV_Parser {
         Database.getInstance().update(createSQL);
     }
 
+    /**
+     * while parsing the stock data, this will return the progress in %
+     * when parsing has completed it will return a value < 0
+     * @return 
+     */
     public double getProgress() {
         return ((double) index) / ((double) rows) * 100;
     }

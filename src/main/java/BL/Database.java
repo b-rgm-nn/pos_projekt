@@ -23,6 +23,7 @@ public class Database {
     
     /**
      * private constructor for Singleton implementation
+     * reads connection details from db_login.txt
      * @throws SQLException when connection to database is unsuccessful
      */
     private Database() throws SQLException {
@@ -65,10 +66,22 @@ public class Database {
         return instance;
     }
     
+    /**
+     * create a scrollable prepared statement
+     * @param sql the sql to execute
+     * @return the Prepared Statement
+     * @throws SQLException 
+     */
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
     }
     
+    /**
+     * Execute an sql query and return the scrollable ResultSet
+     * @param sql the query to execute
+     * @return scrollable ResultSet
+     * @throws SQLException 
+     */
     public ResultSet query(String sql) throws SQLException {
         Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ResultSet result = statement.executeQuery(sql);
@@ -76,6 +89,11 @@ public class Database {
         return result;
     }
     
+    /**
+     * Execute a statement that alters data
+     * @param sql the statement to execute
+     * @throws SQLException 
+     */
     public void update(String sql) throws SQLException {
         Statement statement = conn.createStatement();
         statement.executeUpdate(sql);

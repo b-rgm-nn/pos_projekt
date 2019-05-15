@@ -14,6 +14,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * a query where the user requested the development of a companies stock
+ * @author Matthias
+ */
 public class MultipleValuesQuery extends Query {
 
     private String company;
@@ -23,6 +27,12 @@ public class MultipleValuesQuery extends Query {
         parseCompany(messageResponse);
     }
 
+    /**
+     * get the values that match the query
+     * @return an unordered list of all the values that lie between the two
+     * specified dates
+     * @throws SQLException 
+     */
     public List<Value> queryValues() throws SQLException {
         String query = "SELECT *"
                 + "FROM data "
@@ -50,6 +60,11 @@ public class MultipleValuesQuery extends Query {
         return values;
     }
 
+    /**
+     * parse the company that has been requested by the user
+     * @param response
+     * @throws UnknownQueryException 
+     */
     private void parseCompany(MessageResponse response) throws UnknownQueryException {
         for (RuntimeEntity entity : response.getEntities()) {
             if (entity.getEntity().equals(Entity.company.getName())) {

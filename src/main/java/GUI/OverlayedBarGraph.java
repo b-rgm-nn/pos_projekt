@@ -28,7 +28,7 @@ public class OverlayedBarGraph extends javax.swing.JPanel {
     private double minValue;
 
     /**
-     * Creates new form OverlayedBarGraph that displays multiple values as a
+     * Creates new panel OverlayedBarGraph that displays multiple values as a
      * colored, overlayed graph (e.g.min, max as to graphs on top of each other)
      * graph (e.g.min, max as to graphs on top of each other)
      *

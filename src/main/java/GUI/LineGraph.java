@@ -84,6 +84,7 @@ public class LineGraph extends javax.swing.JPanel {
         // x axis
         g2d.drawLine(sidePxl, topPxl + h, sidePxl + w, topPxl + h);
         
+        // line graph
         g2d.setColor(color);
         for (int i = 1; i < values.size(); i++) {
             g2d.drawLine(calcXCoord(values.get(i-1).getDate().toEpochDay(), w, sidePxl), 
@@ -93,10 +94,25 @@ public class LineGraph extends javax.swing.JPanel {
         }
     }
     
+    /**
+     * calculate the x coordinate of a certain date, depending on graph size and date range
+     * @param date
+     * @param w width of the coord system
+     * @param sidePxl padding on side of graph
+     * @return the x coord of the date
+     */
     private int calcXCoord(long date, int w, int sidePxl) {
         return sidePxl + (int) (w * (date - minDate) / (maxDate - minDate));
     }
-    
+
+    /**
+     * calculate the y coordinate of a certain value, depending on graph size and value range
+     * @param value
+     * @param h height of coord system
+     * @param topPxl padding on top and bottom of graph
+     * @param yAxisStartValue the offset at which the y axis values start
+     * @return  the y coord of the value
+     */
     private int calcYCoord(double value, int h, int topPxl, double yAxisStartValue) {
         return topPxl + h - (int) (h * (value - yAxisStartValue) / (maxValue - yAxisStartValue));
     }

@@ -3,6 +3,11 @@ package BL;
 
 import java.time.LocalDate;
 
+/**
+ * Represents a companies data on a single day
+ * represents an entry in the db
+ * @author Matthias
+ */
 public class Value implements Comparable<Value> {
     private LocalDate date;
     private double low;
@@ -10,6 +15,14 @@ public class Value implements Comparable<Value> {
     private double open;
     private double close;
 
+    /**
+     * pure data class
+     * @param date
+     * @param low
+     * @param high
+     * @param open
+     * @param close 
+     */
     public Value(LocalDate date, double low, double high, double open, double close) {
         this.date = date;
         this.low = low;

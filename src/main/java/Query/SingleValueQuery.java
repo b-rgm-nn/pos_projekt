@@ -25,7 +25,7 @@ public class SingleValueQuery extends Query {
      * query the open, close, high and low values for the specified company and
      * timeframe
      *
-     * @return list of values, ordered: open, high, low, close
+     * @return The requested Value: open, high, low, close
      * @throws NoDataFoundException if the specified company has no values
      * during the timeframe
      * @throws SQLException
@@ -71,6 +71,11 @@ public class SingleValueQuery extends Query {
                 close);
     }
 
+    /**
+     * parse the company from the query
+     * @param response 
+     * @throws UnknownQueryException if the query contained no company
+     */
     private void parseCompany(MessageResponse response) throws UnknownQueryException {
         for (RuntimeEntity entity : response.getEntities()) {
             if (entity.getEntity().equals(Entity.company.getName())) {

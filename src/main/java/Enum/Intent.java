@@ -2,7 +2,7 @@ package Enum;
 
 
 /**
- *
+ * all watson intents that are recognized by the program
  * @author Matthias
  */
 public enum Intent {

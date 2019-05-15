@@ -14,6 +14,10 @@ import com.ibm.watson.assistant.v1.model.MessageOptions;
 import com.ibm.watson.assistant.v1.model.RuntimeIntent;
 import java.util.LinkedList;
 
+/**
+ * provides the interface between the program and IBM Watson
+ * @author Matthias
+ */
 public class WatsonAssistant {
 
     private final IamOptions options = new IamOptions.Builder()
@@ -30,6 +34,13 @@ public class WatsonAssistant {
         assistant.setEndPoint("https://gateway-lon.watsonplatform.net/assistant/api");
     }
 
+    /**
+     * Query IBM Watson for a sentence, determine the intent and extract
+     * data like the company
+     * @param message the sentence that should be parsed
+     * @return a Query object of the appropriate type
+     * @throws UnknownQueryException if the returned intent is not recognized
+     */
     public Query query(String message) throws UnknownQueryException {
         MessageInput input = new MessageInput();
         input.setText(message);

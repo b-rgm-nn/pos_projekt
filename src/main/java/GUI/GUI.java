@@ -22,6 +22,8 @@ import javax.swing.JPanel;
 import parser.CSV_Parser;
 
 /**
+ * minimalistic gui that allows the user to query stock values at certain dates
+ * 
  * sample queries
  * 
  * multiple values:
@@ -51,6 +53,9 @@ public class GUI extends javax.swing.JFrame {
         initDBIfNotExists();
     }
     
+    /**
+     * parse the csv data into the db with progress in output log
+     */
     private void initDBIfNotExists() {
         try {
             Database.getInstance();
@@ -99,6 +104,9 @@ public class GUI extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * animate the results panel while waiting for a response from watson
+     */
     private void startLoading() {
         loading = true;
         Thread t = new Thread(() -> {
@@ -123,6 +131,10 @@ public class GUI extends javax.swing.JFrame {
         t.start();
     }
     
+    /**
+     * inform the user that there are no datapoints for the requested timerange
+     * @param query 
+     */
     private void noResults(Query query) {
         JLabel label = new JLabel();
         label.setText(String.format("No Entry found between %s and %s",

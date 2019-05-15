@@ -6,6 +6,10 @@ import Query.Query;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
+/**
+ * Allows the user to select a query from the queries he has saved previously
+ * @author Matthias
+ */
 public class LoadQueryGUI extends javax.swing.JDialog {
     
     private Query query = null;

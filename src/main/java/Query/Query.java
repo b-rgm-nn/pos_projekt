@@ -11,17 +11,30 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 
-
+/**
+ * Represents a query that was sent to IBM Watson
+ * @author Matthias
+ */
 public class Query implements Serializable {
     protected static DateTimeFormatter dtf = DateTimeFormatter.ISO_DATE;
     protected LocalDate startDate, endDate;
     protected String queryText;
 
+    /**
+     * parse the messageResponse Watson returned
+     * @param messageResponse the messageResponse Watson returned
+     * @throws UnknownQueryException 
+     */
     public Query(MessageResponse messageResponse) throws UnknownQueryException {
         this.queryText = messageResponse.getInput().text();
         parseTimeRange(messageResponse);
     }
     
+    /**
+     * make sure there's one or two dates in the query and parse them
+     * @param response the Watson response
+     * @throws UnknownQueryException if no dates or more than 2 dates
+     */
     private void parseTimeRange(MessageResponse response) throws UnknownQueryException {
         LinkedList<LocalDate> dates = new LinkedList<>();
         
